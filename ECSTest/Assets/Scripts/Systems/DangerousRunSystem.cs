@@ -1,20 +1,19 @@
 ﻿using Leopotam.EcsLite;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Leopotam.EcsLite.Di;
 
 namespace Runer
 {
     public class DangerousRunSystem : IEcsRunSystem
     {
+        readonly EcsPoolInject<DangerousComponent> _dangerousPool = default;
+        readonly EcsFilterInject<Inc<DangerousComponent>> _filter = default;
+
         public void Run(IEcsSystems ecsSystems)
         {
-            var filter = ecsSystems.GetWorld().Filter<DangerousComponent>().End();
-            var dangerousPool = ecsSystems.GetWorld().GetPool<DangerousComponent>();
-
-            foreach (var entity in filter)
+            foreach (var entity in _filter.Value)
             {
-                ref var dangerousComponent = ref dangerousPool.Get(entity);
+                ref var dangerousComponent = ref _dangerousPool.Value.Get(entity);
                 Vector3 pos1 = dangerousComponent.pointA;
                 Vector3 pos2 = dangerousComponent.pointB;
 

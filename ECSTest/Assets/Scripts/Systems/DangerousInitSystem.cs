@@ -2,22 +2,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Leopotam.EcsLite.Di;
 
 namespace Runer
 {
     public class DangerousInitSystem : IEcsInitSystem
     {
+        readonly EcsWorldInject _ecsWorld = default;
+        readonly EcsPoolInject<DangerousComponent> _dangerousPool = default;
+
         public void Init(IEcsSystems ecsSystems)
         {
-            var ecsWorld = ecsSystems.GetWorld();
-            var dangerousPool = ecsWorld.GetPool<DangerousComponent>();
-            
             foreach (var i in GameObject.FindGameObjectsWithTag(Constants.Tags.DangerousTag))
             {
-                var dangerousEntity = ecsWorld.NewEntity();
+                var dangerousEntity = _ecsWorld.Value.NewEntity();
 
-                dangerousPool.Add(dangerousEntity);
-                ref var dangerousComponent = ref dangerousPool.Get(dangerousEntity);
+                _dangerousPool.Value.Add(dangerousEntity);
+                ref var dangerousComponent = ref _dangerousPool.Value.Get(dangerousEntity);
 
                 dangerousComponent.obstacleTransform = i.transform;
                 dangerousComponent.pointA = i.transform.Find("A").position;

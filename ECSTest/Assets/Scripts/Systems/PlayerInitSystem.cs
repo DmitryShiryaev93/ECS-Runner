@@ -2,32 +2,35 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Leopotam.EcsLite.Di;
 
 namespace Runer
 {
     public class PlayerInitSystem : IEcsInitSystem
     {
+        readonly EcsWorldInject _World = default;
+        readonly EcsPoolInject<PlayerComponent> _playerPool = default;
+        readonly EcsPoolInject<PlayerInputComponent> _playerInputPool = default;
+        readonly EcsPoolInject<GroundedComponent> _groundedComp = default;
+
         public void Init(IEcsSystems ecsSystems)
         {
-            var ecsWorld = ecsSystems.GetWorld();
             var gameData = ecsSystems.GetShared<GameData>();
 
-            var playerEntity = ecsWorld.NewEntity();
+            var playerEntity = _World.Value.NewEntity();
 
-            var playerPool = ecsWorld.GetPool<PlayerComponent>();
-            playerPool.Add(playerEntity);
-            ref var playerComponent = ref playerPool.Get(playerEntity);
+            _playerPool.Value.Add(playerEntity);
+            ref var playerComponent = ref _playerPool.Value.Get(playerEntity);
 
-            var playerInputPool = ecsWorld.GetPool<PlayerInputComponent>();
-            playerInputPool.Add(playerEntity);
-            ref var playerInputComponent = ref playerInputPool.Get(playerEntity);
+            _playerInputPool.Value.Add(playerEntity);
+            ref var playerInputComponent = ref _playerInputPool.Value.Get(playerEntity);
 
             var playerGO = GameObject.FindGameObjectWithTag("Player");
             var groundCheckerView = playerGO.GetComponentInChildren<GroundCheckerView>();
-            groundCheckerView.groundedPool = ecsSystems.GetWorld().GetPool<GroundedComponent>();
+            playerGO.GetComponent<CollisionCheckerView>().ecsWorld = _World.Value;
+            groundCheckerView.groundedPool = _groundedComp.Value;
             groundCheckerView.playerEntity = playerEntity;
-            groundCheckerView.PlayerComponent = ecsSystems.GetWorld().GetPool<PlayerComponent>();
-            playerGO.GetComponent<CollisionCheckerView>().ecsWorld = ecsWorld;
+            groundCheckerView.PlayerComponent = _playerPool.Value;
 
             playerComponent.playerSpeed = gameData.configuration.playerSpeed;
             playerComponent.playerTransform = playerGO.transform;

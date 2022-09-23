@@ -10,9 +10,10 @@ namespace Runer
     public class GameData
     {
         public ConfigurationSO configuration;
-        public Text coinCounter;
+        public Text[] coinCounter;
         public GameObject playerWonPanel;
         public GameObject gameOverPanel;
         public SceneService sceneService;
+        public GameObject bloodParticle;
     }
 }
